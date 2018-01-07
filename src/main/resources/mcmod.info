@@ -1,0 +1,16 @@
+[
+{
+  "modid": "simpleircbridge",
+  "name": "SimpleIRCBridge",
+  "description": "A Server IRC bridge mod that is extremely simple.",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": [],
+  "credits": "",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
