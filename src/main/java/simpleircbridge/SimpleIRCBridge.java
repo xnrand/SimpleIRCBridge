@@ -3,23 +3,23 @@ package simpleircbridge;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.common.Mod;
+import cpw.mods.fml.common.Mod.EventHandler;
+import cpw.mods.fml.common.event.FMLInitializationEvent;
+import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import cpw.mods.fml.common.event.FMLServerStartingEvent;
+import cpw.mods.fml.common.event.FMLServerStoppedEvent;
+import cpw.mods.fml.common.event.FMLServerStoppingEvent;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatComponentText;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.Mod.EventHandler;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
-import net.minecraftforge.fml.common.event.FMLServerStoppedEvent;
-import net.minecraftforge.fml.common.event.FMLServerStoppingEvent;
 
 @Mod(modid = SimpleIRCBridge.MODID, version = SimpleIRCBridge.VERSION, acceptableRemoteVersions = "*")
 public class SimpleIRCBridge {
 	public static final String MODID = "simpleircbridge";
-	public static final String VERSION = "1.8.9_1.1.1-dev";
+	public static final String VERSION = "1.7.10_1.1.1-dev";
 
 	private static Logger logger = LogManager.getLogger();
 	private SIBConfig sibConf;
@@ -39,7 +39,9 @@ public class SimpleIRCBridge {
 	@EventHandler
 	public void init(FMLInitializationEvent event) {
 		logger.info("sib init");
-		MinecraftForge.EVENT_BUS.register(new GameEventHandler(this));
+		GameEventHandler geh = new GameEventHandler(this);
+		MinecraftForge.EVENT_BUS.register(geh);
+		FMLCommonHandler.instance().bus().register(geh);
 	}
 
 	@EventHandler

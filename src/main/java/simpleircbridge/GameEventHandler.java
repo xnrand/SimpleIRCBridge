@@ -2,13 +2,13 @@ package simpleircbridge;
 
 import static simpleircbridge.SIBConstants.*;
 
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import cpw.mods.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
+import cpw.mods.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.event.CommandEvent;
 import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
-import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent;
 
 public class GameEventHandler {
 	private final SimpleIRCBridge bridge;
@@ -19,17 +19,17 @@ public class GameEventHandler {
 
 	@SubscribeEvent
 	public void playerLoggedIn(PlayerLoggedInEvent e) {
-		toIrc(String.format(FORMAT1_MC_LOGIN, SIBUtil.mangle(e.player.getDisplayNameString())));
+		toIrc(String.format(FORMAT1_MC_LOGIN, SIBUtil.mangle(e.player.getDisplayName())));
 	}
 
 	@SubscribeEvent
 	public void playerLoggedOut(PlayerLoggedOutEvent e) {
-		toIrc(String.format(FORMAT1_MC_LOGOUT, SIBUtil.mangle(e.player.getDisplayNameString())));
+		toIrc(String.format(FORMAT1_MC_LOGOUT, SIBUtil.mangle(e.player.getDisplayName())));
 	}
 
 	@SubscribeEvent
 	public void command(CommandEvent e) {
-		String nickname = SIBUtil.mangle(e.sender.getDisplayName().getUnformattedText());
+		String nickname = SIBUtil.mangle(e.sender.getCommandSenderName());
 		/*
 		 * Usually these would be instanceof checks, checking for
 		 * net.minecraft.command.server.CommandEmote and
@@ -47,14 +47,14 @@ public class GameEventHandler {
 
 	@SubscribeEvent
 	public void serverChat(ServerChatEvent e) {
-		toIrc(String.format(FORMAT2_MC_CHAT, SIBUtil.mangle(e.player.getDisplayNameString()), e.message));
+		toIrc(String.format(FORMAT2_MC_CHAT, SIBUtil.mangle(e.player.getDisplayName()), e.message));
 	}
 
 	@SubscribeEvent
 	public void livingDeath(LivingDeathEvent e) {
 		if (e.entityLiving instanceof EntityPlayer) {
 			toIrc(String.format(FORMAT1_MC_DEATH,
-					e.source.getDeathMessage(e.entityLiving).getUnformattedText()));
+					e.source.func_151519_b(e.entityLiving).getUnformattedText()));
 		}
 	}
 
