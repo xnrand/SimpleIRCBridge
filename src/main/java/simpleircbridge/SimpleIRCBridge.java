@@ -19,7 +19,7 @@ import net.minecraftforge.fml.common.event.FMLServerStoppingEvent;
 @Mod(modid = SimpleIRCBridge.MODID, version = SimpleIRCBridge.VERSION, acceptableRemoteVersions = "*")
 public class SimpleIRCBridge {
 	public static final String MODID = "simpleircbridge";
-	public static final String VERSION = "1.12.2_1.1.1-dev";
+	public static final String VERSION = "1.10.2_1.1.1-dev";
 
 	private static Logger logger = LogManager.getLogger();
 	private SIBConfig sibConf;
@@ -73,7 +73,7 @@ public class SimpleIRCBridge {
 
 	/* package-private */ void sendToMinecraft(String line) {
 		if (this.mcServer != null) {
-			this.mcServer.getPlayerList().sendMessage(new TextComponentString(line));
+			this.mcServer.getPlayerList().sendChatMsg(new TextComponentString(line));
 		}
 	}
 

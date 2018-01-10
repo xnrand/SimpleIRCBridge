@@ -38,9 +38,9 @@ public class GameEventHandler {
 		 * However, some mods insist on overriding commands with their own wrappers
 		 * (looking at you, FTBUtilities) so we're checking the names here.
 		 */
-		if ("say".equals(e.getCommand().getName())) {
+		if ("say".equals(e.getCommand().getCommandName())) {
 			toIrc(String.format(FORMAT2_MC_BROADCAST, nickname, SIBUtil.join(" ", e.getParameters())));
-		} else if ("me".equals(e.getCommand().getName())) {
+		} else if ("me".equals(e.getCommand().getCommandName())) {
 			toIrc(String.format(FORMAT2_MC_EMOTE, nickname, SIBUtil.join(" ", e.getParameters())));
 		}
 	}
