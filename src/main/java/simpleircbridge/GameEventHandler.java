@@ -9,6 +9,7 @@ import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent;
+import utils.IRCMinecraftConverter;
 
 public class GameEventHandler {
 	private final SimpleIRCBridge bridge;
@@ -38,16 +39,30 @@ public class GameEventHandler {
 		 * However, some mods insist on overriding commands with their own wrappers
 		 * (looking at you, FTBUtilities) so we're checking the names here.
 		 */
+		
+		String content = SIBUtil.join(" ", e.getParameters());
+		
 		if ("say".equals(e.getCommand().getName())) {
-			toIrc(String.format(FORMAT2_MC_BROADCAST, nickname, SIBUtil.join(" ", e.getParameters())));
+			if(bridge.getSibConf().ircFormatting) {
+				content = IRCMinecraftConverter.convMinecraftToIRC(content);
+			}
+			toIrc(String.format(FORMAT2_MC_BROADCAST, nickname, content));
+			
 		} else if ("me".equals(e.getCommand().getName())) {
-			toIrc(String.format(FORMAT2_MC_EMOTE, nickname, SIBUtil.join(" ", e.getParameters())));
+			if(bridge.getSibConf().ircFormatting) {
+				content = IRCMinecraftConverter.convMinecraftToIRC(content);
+			}
+			toIrc(String.format(FORMAT2_MC_EMOTE, nickname, content));
 		}
 	}
 
 	@SubscribeEvent
 	public void serverChat(ServerChatEvent e) {
-		toIrc(String.format(FORMAT2_MC_CHAT, SIBUtil.mangle(e.getPlayer().getDisplayNameString()), e.getMessage()));
+		String content = e.getMessage();
+		if(bridge.getSibConf().ircFormatting) {
+			content = IRCMinecraftConverter.convMinecraftToIRC(content);
+		}
+		toIrc(String.format(FORMAT2_MC_CHAT, SIBUtil.mangle(e.getPlayer().getDisplayNameString()), content));
 	}
 
 	@SubscribeEvent

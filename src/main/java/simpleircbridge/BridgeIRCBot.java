@@ -6,6 +6,7 @@ import java.net.InetSocketAddress;
 
 import genericircbot.AbstractIRCBot;
 import genericircbot.IRCConnectionInfo;
+import utils.IRCMinecraftConverter;
 
 public class BridgeIRCBot extends AbstractIRCBot {
 
@@ -33,27 +34,47 @@ public class BridgeIRCBot extends AbstractIRCBot {
 
 	@Override
 	protected void onPart(String channel, String sender, String reason) {
+		if(bridge.getSibConf().mcFormatting)
+		{
+			reason = IRCMinecraftConverter.convIRCtoMinecraft(reason);
+		}
 		toMc(String.format(FORMAT2_IRC_PART, sender, reason));
 	}
 
 	@Override
 	protected void onQuit(String sender, String reason) {
+		if(bridge.getSibConf().mcFormatting)
+		{
+			reason = IRCMinecraftConverter.convIRCtoMinecraft(reason);
+		}
 		toMc(String.format(FORMAT2_IRC_QUIT, sender, reason));
 	}
 
 	@Override
 	protected void onKick(String channel, String opsender, String victim, String reason) {
+		if(bridge.getSibConf().mcFormatting)
+		{
+			reason = IRCMinecraftConverter.convIRCtoMinecraft(reason);
+		}
 		toMc(String.format(FORMAT3_IRC_KICK, victim, opsender, reason));
 	}
 
 	@Override
 	protected void onMessage(String channel, String sender, String message) {
+		if(bridge.getSibConf().mcFormatting)
+		{
+			message = IRCMinecraftConverter.convIRCtoMinecraft(message);
+		}
 		toMc(String.format(FORMAT2_IRC_CHAT, sender, message));
 
 	}
 
 	@Override
 	protected void onAction(String channel, String sender, String action) {
+		if(bridge.getSibConf().mcFormatting)
+		{
+			action = IRCMinecraftConverter.convIRCtoMinecraft(action);
+		}
 		toMc(String.format(FORMAT2_IRC_EMOTE, sender, action));
 	}
 
