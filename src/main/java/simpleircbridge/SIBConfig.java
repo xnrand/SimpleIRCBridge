@@ -47,6 +47,17 @@ public class SIBConfig {
 	private final static String COMMENT_ircTLS = "Whether TLS/SSL is enabled. Set to 'false' for a plaintext connection";
 	/* package */ final boolean ircTLS;
 	private final static boolean DEFAULT_ircTLS = true;
+	
+	private final static String KEY_ircFormatting = "ircFormatting";
+	private final static String COMMENT_ircFormatting = "Whether minecraft formatting should be converted to IRC formatting.";
+	/* package */ final boolean ircFormatting;
+	private final static boolean DEFAULT_ircFormatting = true;
+	
+	private final static String KEY_mcFormatting = "mcFormatting";
+	private final static String COMMENT_mcFormatting = "Whether IRC formatting should be converted to Minecraft formatting.";
+	/* package */ final boolean mcFormatting;
+	private final static boolean DEFAULT_mcFormatting = true;
+	
 
 	/** gets all SIB properties. load/save is needs to be handled by caller */
 	public SIBConfig(Configuration conf) {
@@ -60,6 +71,8 @@ public class SIBConfig {
 		this.ircChannel = conf.getString(KEY_ircChannel, CAT_IRC, DEFAULT_ircChannel, COMMENT_ircChannel);
 		this.ircPort = conf.getInt(KEY_ircPort, CAT_IRC, DEFAULT_ircPort, MIN_ircPort, MAX_ircPort, COMMENT_ircPort);
 		this.ircTLS = conf.getBoolean(KEY_ircTLS, CAT_IRC, DEFAULT_ircTLS, COMMENT_ircTLS);
+		this.ircFormatting = conf.getBoolean(KEY_ircFormatting, CAT_IRC, DEFAULT_ircFormatting, COMMENT_ircFormatting);
+		this.mcFormatting = conf.getBoolean(KEY_mcFormatting, CAT_IRC, DEFAULT_mcFormatting, COMMENT_mcFormatting);
 		conf.setCategoryRequiresMcRestart(CAT_IRC, true);
 	}
 }
