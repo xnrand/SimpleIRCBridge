@@ -47,17 +47,16 @@ public class SIBConfig {
 	private final static String COMMENT_ircTLS = "Whether TLS/SSL is enabled. Set to 'false' for a plaintext connection";
 	/* package */ final boolean ircTLS;
 	private final static boolean DEFAULT_ircTLS = true;
-	
+
 	private final static String KEY_ircFormatting = "ircFormatting";
 	private final static String COMMENT_ircFormatting = "Whether minecraft formatting should be converted to IRC formatting.";
 	/* package */ final boolean ircFormatting;
 	private final static boolean DEFAULT_ircFormatting = true;
-	
+
 	private final static String KEY_mcFormatting = "mcFormatting";
 	private final static String COMMENT_mcFormatting = "Whether IRC formatting should be converted to Minecraft formatting.";
 	/* package */ final boolean mcFormatting;
 	private final static boolean DEFAULT_mcFormatting = true;
-	
 
 	/** gets all SIB properties. load/save is needs to be handled by caller */
 	public SIBConfig(Configuration conf) {

@@ -31,8 +31,8 @@ public final class MircColors {
 	public static final String BOLD = "\u0002";
 	public static final String NORMAL = "\u000f";
 	public static final String UNDERLINE = "\u001f";
-	
+
 	public static final String ITALIC = "\u001d";
 	public static final String INVERSE = "\u0016";
-	
+
 }
