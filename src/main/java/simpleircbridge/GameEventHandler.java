@@ -39,17 +39,17 @@ public class GameEventHandler {
 		 * However, some mods insist on overriding commands with their own wrappers
 		 * (looking at you, FTBUtilities) so we're checking the names here.
 		 */
-		
+
 		String content = SIBUtil.join(" ", e.getParameters());
-		
+
 		if ("say".equals(e.getCommand().getName())) {
-			if(bridge.getSibConf().ircFormatting) {
+			if (this.bridge.getSibConf().ircFormatting) {
 				content = IRCMinecraftConverter.convMinecraftToIRC(content);
 			}
 			toIrc(String.format(FORMAT2_MC_BROADCAST, nickname, content));
-			
+
 		} else if ("me".equals(e.getCommand().getName())) {
-			if(bridge.getSibConf().ircFormatting) {
+			if (this.bridge.getSibConf().ircFormatting) {
 				content = IRCMinecraftConverter.convMinecraftToIRC(content);
 			}
 			toIrc(String.format(FORMAT2_MC_EMOTE, nickname, content));
@@ -59,7 +59,7 @@ public class GameEventHandler {
 	@SubscribeEvent
 	public void serverChat(ServerChatEvent e) {
 		String content = e.getMessage();
-		if(bridge.getSibConf().ircFormatting) {
+		if (this.bridge.getSibConf().ircFormatting) {
 			content = IRCMinecraftConverter.convMinecraftToIRC(content);
 		}
 		toIrc(String.format(FORMAT2_MC_CHAT, SIBUtil.mangle(e.getPlayer().getDisplayNameString()), content));
