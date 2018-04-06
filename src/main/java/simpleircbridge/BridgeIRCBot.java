@@ -63,7 +63,7 @@ public class BridgeIRCBot extends AbstractIRCBot {
 	}
 
 	@Override
-	protected void onConnect() {
+	protected void onNumeric001() {
 		joinChannel(this.bridge.getSibConf().ircChannel);
 	}
 
