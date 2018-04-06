@@ -169,6 +169,8 @@ import org.apache.commons.lang3.StringUtils;
 				pingpong[1] = 'O';
 				this.bot.sendRawLine(new String(pingpong));
 			}
+		} else if (line.matches("^:[^ ]+ 001 .*")) {
+			this.bot.onNumeric001();
 		}
 	}
 
