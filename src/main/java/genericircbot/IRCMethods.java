@@ -125,6 +125,17 @@ public abstract class IRCMethods {
 	/**
 	 * Called when the bot has established a connection to IRC and can send
 	 * commands.
+	 * <p>
+	 * <strong>Note:</strong> Refer to {@link AbstractIRCBot} for notes on thread
+	 * safety.
+	 */
+	protected void onConnect() {
+		/* can be overridden */
+	}
+
+	/**
+	 * Called when the bot has established a connection to IRC and registration has
+	 * finished (a 001 numeric is received).
 	 * 
 	 * It makes sense to {@link AbstractIRCBot#joinChannel(String) join channels} in
 	 * implementations of this method.
@@ -132,7 +143,7 @@ public abstract class IRCMethods {
 	 * <strong>Note:</strong> Refer to {@link AbstractIRCBot} for notes on thread
 	 * safety.
 	 */
-	protected void onConnect() {
+	protected void onNumeric001() {
 		/* can be overridden */
 	}
 }
