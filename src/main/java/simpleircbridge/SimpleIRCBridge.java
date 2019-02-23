@@ -4,57 +4,78 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.config.Configuration;
-import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.Mod.EventHandler;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
-import net.minecraftforge.fml.common.event.FMLServerStoppedEvent;
-import net.minecraftforge.fml.common.event.FMLServerStoppingEvent;
+import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
+import net.minecraftforge.fml.event.server.FMLServerStoppedEvent;
+import net.minecraftforge.fml.event.server.FMLServerStoppingEvent;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fml.network.NetworkRegistry;
 
-@Mod(modid = SimpleIRCBridge.MODID, version = SimpleIRCBridge.VERSION, acceptableRemoteVersions = "*")
+@Mod(value = SimpleIRCBridge.MODID)
 public class SimpleIRCBridge {
 	public static final String MODID = "simpleircbridge";
-	public static final String VERSION = "1.12.2_1.2.0";
+	public static final String VERSION = "1.13.2_1.2.0-dev";
 
-	private static Logger logger = LogManager.getLogger();
+	private static Logger logger = LogManager.getLogger(MODID);
 	private SIBConfig sibConf;
-	private Configuration fmlConf;
-	private BridgeIRCBot bot;
+	private BridgeIRCBot bot = null;
 	private MinecraftServer mcServer;
 
-	@EventHandler
-	public void preInit(FMLPreInitializationEvent event) {
-		logger = event.getModLog();
-		this.fmlConf = new Configuration(event.getSuggestedConfigurationFile());
-		this.fmlConf.load();
-		this.sibConf = new SIBConfig(this.fmlConf);
-		this.fmlConf.save();
+	public SimpleIRCBridge() {
+		logger.info("SIB constructing");
+		MinecraftForge.EVENT_BUS.register(this);
+		IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
+		bus.register(this); // fires ModConfigEvent
 	}
 
-	@EventHandler
-	public void init(FMLInitializationEvent event) {
-		logger.info("sib init");
-		MinecraftForge.EVENT_BUS.register(new GameEventHandler(this));
+	@SubscribeEvent
+	public void preInit(FMLCommonSetupEvent event) {
+		logger.info("SIB setting up");
+		ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, SIBConfig.SPEC);
+
+		if(false)
+		NetworkRegistry.ChannelBuilder.named(new ResourceLocation(MODID, "channel"))//
+				.clientAcceptedVersions(x -> true)//
+				.serverAcceptedVersions(x -> true)//
+				.networkProtocolVersion(() -> "v1")//
+				.simpleChannel();
 	}
 
-	@EventHandler
+	@SubscribeEvent
+	public void config(ModConfig.ModConfigEvent event) {
+		logger.info("SIB receied config update");
+		this.sibConf = new SIBConfig();
+	}
+
+	@SubscribeEvent
 	public void serverStarting(FMLServerStartingEvent event) {
-		this.mcServer = FMLCommonHandler.instance().getMinecraftServerInstance();
+		logger.info("SIB server start");
+		this.mcServer = event.getServer();
+		if (this.bot != null) {
+			throw new IllegalStateException("Tried to start 2 bots in one mod instance");
+		}
+		if (this.sibConf == null) {
+			throw new IllegalStateException("Config not loaded");
+		}
 		this.bot = new BridgeIRCBot(this.sibConf, this);
 		this.bot.run();
 	}
 
-	@EventHandler
+	@SubscribeEvent
 	public void serverStopping(FMLServerStoppingEvent event) {
+		logger.info("SIB server stop");
 		this.bot.disconnect();
 	}
 
-	@EventHandler
+	@SubscribeEvent
 	public void serverStopped(FMLServerStoppedEvent event) {
 		this.bot.kill();
 		this.bot = null;

@@ -1,0 +1,7 @@
+modLoader="javafml"
+loaderVersion="[25,)"
+[[mods]]
+modId="simpleircbridge"
+version="${version}"
+displayName="SimpleIRCBridge"
+description="A Server IRC bridge mod that is extremely simple."
