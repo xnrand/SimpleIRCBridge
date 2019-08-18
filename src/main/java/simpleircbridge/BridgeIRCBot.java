@@ -12,12 +12,18 @@ public class BridgeIRCBot extends AbstractIRCBot {
 
 	private SimpleIRCBridge bridge;
 
-	/* package */ BridgeIRCBot(SIBConfig conf, SimpleIRCBridge bridge) {
+	/* package */ BridgeIRCBot(SimpleIRCBridge bridge) {
+
 		super(//
-				/* socketAddr = */ new InetSocketAddress(conf.ircHostname, conf.ircPort), //
-				/* useSsl = */ conf.ircTLS, //
-				/* info = */ new IRCConnectionInfo(conf.ircNickname, conf.ircUsername, conf.ircRealname), //
-				/* servPassword = */ conf.ircPassword);
+				/* socketAddr = */ new InetSocketAddress((String) SIBConfig.IRC_HOSTNAME.get(), SIBConfig.IRC_PORT.get()), //
+				/* useSsl = */ SIBConfig.IRC_TLS.get(), //
+				/* info = */ new IRCConnectionInfo(
+						/* nickname = */ !((String) SIBConfig.IRC_NICKNAME.get()).contains("(rnd)") ? ((String) SIBConfig.IRC_NICKNAME.get()) :
+										((String) SIBConfig.IRC_NICKNAME.get()).replace("(rnd)", String.valueOf((int) (Math.random() * 100000))),
+						/* username = */ (String) SIBConfig.IRC_USERNAME.get(),
+						/* realname = */ (String) SIBConfig.IRC_REALNAME.get()),
+						/* password = */ (String) SIBConfig.IRC_PASSWORD.get());
+		SimpleIRCBridge.log().info((String) SIBConfig.IRC_HOSTNAME.get());
 		this.bridge = bridge;
 	}
 
@@ -34,7 +40,7 @@ public class BridgeIRCBot extends AbstractIRCBot {
 
 	@Override
 	protected void onPart(String channel, String sender, String reason) {
-		if (this.bridge.getSibConf().mcFormatting) {
+		if (SIBConfig.MC_FORMATTING.get()) {
 			reason = IRCMinecraftConverter.convIRCtoMinecraft(reason);
 		}
 		toMc(String.format(FORMAT2_IRC_PART, sender, reason));
@@ -42,7 +48,7 @@ public class BridgeIRCBot extends AbstractIRCBot {
 
 	@Override
 	protected void onQuit(String sender, String reason) {
-		if (this.bridge.getSibConf().mcFormatting) {
+		if (SIBConfig.MC_FORMATTING.get()) {
 			reason = IRCMinecraftConverter.convIRCtoMinecraft(reason);
 		}
 		toMc(String.format(FORMAT2_IRC_QUIT, sender, reason));
@@ -50,7 +56,7 @@ public class BridgeIRCBot extends AbstractIRCBot {
 
 	@Override
 	protected void onKick(String channel, String opsender, String victim, String reason) {
-		if (this.bridge.getSibConf().mcFormatting) {
+		if (SIBConfig.MC_FORMATTING.get()) {
 			reason = IRCMinecraftConverter.convIRCtoMinecraft(reason);
 		}
 		toMc(String.format(FORMAT3_IRC_KICK, victim, opsender, reason));
@@ -58,7 +64,7 @@ public class BridgeIRCBot extends AbstractIRCBot {
 
 	@Override
 	protected void onMessage(String channel, String sender, String message) {
-		if (this.bridge.getSibConf().mcFormatting) {
+		if (SIBConfig.MC_FORMATTING.get()) {
 			message = IRCMinecraftConverter.convIRCtoMinecraft(message);
 		}
 		toMc(String.format(FORMAT2_IRC_CHAT, sender, message));
@@ -67,7 +73,7 @@ public class BridgeIRCBot extends AbstractIRCBot {
 
 	@Override
 	protected void onAction(String channel, String sender, String action) {
-		if (this.bridge.getSibConf().mcFormatting) {
+		if (SIBConfig.MC_FORMATTING.get()) {
 			action = IRCMinecraftConverter.convIRCtoMinecraft(action);
 		}
 		toMc(String.format(FORMAT2_IRC_EMOTE, sender, action));
@@ -80,7 +86,7 @@ public class BridgeIRCBot extends AbstractIRCBot {
 
 	@Override
 	protected void onNumeric001() {
-		joinChannel(this.bridge.getSibConf().ircChannel);
+		joinChannel((String) SIBConfig.IRC_CHANNEL.get());
 	}
 
 	/** {@inheritDoc} */ // re-declare protected, publish method for package

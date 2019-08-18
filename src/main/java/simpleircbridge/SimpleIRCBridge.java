@@ -1,60 +1,56 @@
 package simpleircbridge;
 
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ModLoadingContext;
+import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
+import net.minecraftforge.fml.event.server.FMLServerStoppedEvent;
+import net.minecraftforge.fml.event.server.FMLServerStoppingEvent;
+import net.minecraftforge.fml.loading.FMLPaths;
+import net.minecraftforge.fml.server.ServerLifecycleHooks;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.config.Configuration;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.Mod.EventHandler;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
-import net.minecraftforge.fml.common.event.FMLServerStoppedEvent;
-import net.minecraftforge.fml.common.event.FMLServerStoppingEvent;
 
-@Mod(modid = SimpleIRCBridge.MODID, version = SimpleIRCBridge.VERSION, acceptableRemoteVersions = "*")
+
+@OnlyIn(Dist.DEDICATED_SERVER)
+@Mod(SimpleIRCBridge.MODID)
 public class SimpleIRCBridge {
 	public static final String MODID = "simpleircbridge";
 	public static final String VERSION = "1.12.2_1.2.0";
 
 	private static Logger logger = LogManager.getLogger();
-	private SIBConfig sibConf;
-	private Configuration fmlConf;
 	private BridgeIRCBot bot;
 	private MinecraftServer mcServer;
 
-	@EventHandler
-	public void preInit(FMLPreInitializationEvent event) {
-		logger = event.getModLog();
-		this.fmlConf = new Configuration(event.getSuggestedConfigurationFile());
-		this.fmlConf.load();
-		this.sibConf = new SIBConfig(this.fmlConf);
-		this.fmlConf.save();
-	}
+	public SimpleIRCBridge() {
+		ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, SIBConfig.SERVER_CONFIG);
 
-	@EventHandler
-	public void init(FMLInitializationEvent event) {
-		logger.info("sib init");
+		MinecraftForge.EVENT_BUS.register(this);
 		MinecraftForge.EVENT_BUS.register(new GameEventHandler(this));
+
+		SIBConfig.loadConfig(SIBConfig.SERVER_CONFIG, FMLPaths.CONFIGDIR.get().resolve("simpleircbridge-common.toml"));
 	}
 
-	@EventHandler
+	@SubscribeEvent
 	public void serverStarting(FMLServerStartingEvent event) {
-		this.mcServer = FMLCommonHandler.instance().getMinecraftServerInstance();
-		this.bot = new BridgeIRCBot(this.sibConf, this);
+		this.mcServer = ServerLifecycleHooks.getCurrentServer();
+		this.bot = new BridgeIRCBot(this);
 		this.bot.run();
 	}
 
-	@EventHandler
+	@SubscribeEvent
 	public void serverStopping(FMLServerStoppingEvent event) {
 		this.bot.disconnect();
 	}
 
-	@EventHandler
+	@SubscribeEvent
 	public void serverStopped(FMLServerStoppedEvent event) {
 		this.bot.kill();
 		this.bot = null;
@@ -67,17 +63,13 @@ public class SimpleIRCBridge {
 
 	/* package-private */ void sendToIrc(String line) {
 		if (this.bot != null) {
-			this.bot.sendMessage(this.sibConf.ircChannel, line);
+			this.bot.sendMessage(SIBConfig.IRC_CHANNEL.get().toString(), line);
 		}
 	}
 
 	/* package-private */ void sendToMinecraft(String line) {
 		if (this.mcServer != null) {
-			this.mcServer.getPlayerList().sendMessage(new TextComponentString(line));
+			this.mcServer.getPlayerList().sendMessage(new StringTextComponent(line));
 		}
-	}
-
-	/* package-private */ SIBConfig getSibConf() {
-		return this.sibConf;
 	}
 }
