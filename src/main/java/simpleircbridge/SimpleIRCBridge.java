@@ -4,7 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
@@ -23,7 +23,7 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 @Mod(value = SimpleIRCBridge.MODID)
 public class SimpleIRCBridge {
 	public static final String MODID = "simpleircbridge";
-	public static final String VERSION = "1.13.2_1.2.0-dev";
+	public static final String VERSION = "1.14.4_1.2.0-dev";
 
 	private static Logger logger = LogManager.getLogger(MODID);
 	private SIBConfig sibConf;
@@ -88,7 +88,7 @@ public class SimpleIRCBridge {
 
 	/* package-private */ void sendToMinecraft(String line) {
 		if (this.mcServer != null) {
-			this.mcServer.getPlayerList().sendMessage(new TextComponentString(line));
+			this.mcServer.getPlayerList().sendMessage(new StringTextComponent(line));
 		}
 	}
 

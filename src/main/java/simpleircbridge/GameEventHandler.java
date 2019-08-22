@@ -8,15 +8,15 @@ import java.util.regex.Pattern;
 import com.mojang.brigadier.ParseResults;
 
 import net.minecraft.command.CommandSource;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraftforge.event.CommandEvent;
 import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedOutEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
-import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent;
 import utils.IRCMinecraftConverter;
 
 @Mod.EventBusSubscriber(modid = SimpleIRCBridge.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
@@ -47,8 +47,8 @@ public class GameEventHandler {
 		String nickname;
 
 		CommandSource source = cmd.getContext().getSource();
-		if (source.getEntity() instanceof EntityPlayerMP) {
-			EntityPlayerMP player = (EntityPlayerMP) source.getEntity();
+		if (source.getEntity() instanceof ServerPlayerEntity) {
+			ServerPlayerEntity player = (ServerPlayerEntity) source.getEntity();
 			nickname = SIBUtil.mangle(player.getGameProfile().getName());
 		} else {
 			nickname = source.getDisplayName().getString();
@@ -85,9 +85,9 @@ public class GameEventHandler {
 
 	@SubscribeEvent
 	public void livingDeath(LivingDeathEvent e) {
-		if (e.getEntityLiving() instanceof EntityPlayer) {
+		if (e.getEntityLiving() instanceof PlayerEntity) {
 			toIrc(String.format(FORMAT1_MC_DEATH,
-					e.getSource().getDeathMessage(e.getEntityLiving()).getUnformattedComponentText()));
+					e.getSource().getDeathMessage(e.getEntityLiving()).getString()));
 		}
 	}
 
