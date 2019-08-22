@@ -4,8 +4,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentString;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -17,8 +18,8 @@ import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import net.minecraftforge.fml.event.server.FMLServerStoppedEvent;
 import net.minecraftforge.fml.event.server.FMLServerStoppingEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.network.NetworkRegistry;
 
+@OnlyIn(Dist.DEDICATED_SERVER)
 @Mod(value = SimpleIRCBridge.MODID)
 public class SimpleIRCBridge {
 	public static final String MODID = "simpleircbridge";
@@ -40,24 +41,16 @@ public class SimpleIRCBridge {
 	public void preInit(FMLCommonSetupEvent event) {
 		logger.info("SIB setting up");
 		ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, SIBConfig.SPEC);
-
-		if(false)
-		NetworkRegistry.ChannelBuilder.named(new ResourceLocation(MODID, "channel"))//
-				.clientAcceptedVersions(x -> true)//
-				.serverAcceptedVersions(x -> true)//
-				.networkProtocolVersion(() -> "v1")//
-				.simpleChannel();
 	}
 
 	@SubscribeEvent
 	public void config(ModConfig.ModConfigEvent event) {
-		logger.info("SIB receied config update");
+		logger.info("SIB receied config event");
 		this.sibConf = new SIBConfig();
 	}
 
 	@SubscribeEvent
 	public void serverStarting(FMLServerStartingEvent event) {
-		logger.info("SIB server start");
 		this.mcServer = event.getServer();
 		if (this.bot != null) {
 			throw new IllegalStateException("Tried to start 2 bots in one mod instance");
@@ -67,11 +60,12 @@ public class SimpleIRCBridge {
 		}
 		this.bot = new BridgeIRCBot(this.sibConf, this);
 		this.bot.run();
+
+		MinecraftForge.EVENT_BUS.register(new GameEventHandler(this));
 	}
 
 	@SubscribeEvent
 	public void serverStopping(FMLServerStoppingEvent event) {
-		logger.info("SIB server stop");
 		this.bot.disconnect();
 	}
 
