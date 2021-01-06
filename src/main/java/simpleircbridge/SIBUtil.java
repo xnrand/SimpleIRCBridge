@@ -1,6 +1,8 @@
 package simpleircbridge;
 
 public class SIBUtil {
+	private static final String UNICODE_ZWNJ = "\u200c";
+
 	private SIBUtil() {
 		// utility class
 	}
@@ -23,9 +25,8 @@ public class SIBUtil {
 
 	/** for Strings at least two chars long, inserts a ZWNJ at position 1 */
 	public static String mangle(String nick) {
-		final String unicode_zwnj = "\u200c";
 		if (nick.length() > 1) {
-			return nick.charAt(0) + unicode_zwnj + nick.substring(1);
+			return nick.charAt(0) + UNICODE_ZWNJ + nick.substring(1);
 		}
 		return nick;
 	}
