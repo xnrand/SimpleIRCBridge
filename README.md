@@ -21,4 +21,4 @@ The mod can easily be tested using `./gradlew runServer`. A `run` directory will
 Usage
 -----
 
-Drop the jar file in your `mods` directory, start the server once, edit `config/simpleircbridge.cfg` and restart the server.
+Drop the jar file in your `mods` directory, start the server once, edit `world/serverconfig/simpleircbridge-server.toml` and restart the server.
