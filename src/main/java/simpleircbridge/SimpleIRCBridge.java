@@ -1,9 +1,13 @@
 package simpleircbridge;
 
+import java.nio.charset.StandardCharsets;
+import java.util.UUID;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.text.ChatType;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -23,7 +27,8 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 @Mod(value = SimpleIRCBridge.MODID)
 public class SimpleIRCBridge {
 	public static final String MODID = "simpleircbridge";
-	public static final String VERSION = "1.14.4_1.2.0-dev";
+	public static final String VERSION = "1.16.4_1.2.0-dev";
+	private static final UUID IRC_UUID = UUID.nameUUIDFromBytes(MODID.getBytes(StandardCharsets.US_ASCII));
 
 	private static Logger logger = LogManager.getLogger(MODID);
 	private SIBConfig sibConf;
@@ -34,23 +39,29 @@ public class SimpleIRCBridge {
 		logger.info("SIB constructing");
 		MinecraftForge.EVENT_BUS.register(this);
 		IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
-		bus.register(this); // fires ModConfigEvent
+		bus.addListener(this::preInit);
+		bus.addListener(this::config);
 	}
 
-	@SubscribeEvent
+	/** registered manually in the ModLoadingContext {@linkplain SimpleIRCBridge#SimpleIRCBridge() here} */
 	public void preInit(FMLCommonSetupEvent event) {
 		logger.info("SIB setting up");
 		ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, SIBConfig.SPEC);
 	}
 
-	@SubscribeEvent
+	/** registered manually in the ModLoadingContext {@linkplain SimpleIRCBridge#SimpleIRCBridge() here} */
 	public void config(ModConfig.ModConfigEvent event) {
-		logger.info("SIB receied config event");
-		this.sibConf = new SIBConfig();
+		if (event.getConfig().getSpec() == SIBConfig.SPEC) {
+			logger.info("SIB receied related config event");
+			this.sibConf = new SIBConfig();
+		} else {
+			logger.info("SIB receied unrelated config event");
+		}
 	}
 
 	@SubscribeEvent
 	public void serverStarting(FMLServerStartingEvent event) {
+		logger.info("SIB received server starting event");
 		this.mcServer = event.getServer();
 		if (this.bot != null) {
 			throw new IllegalStateException("Tried to start 2 bots in one mod instance");
@@ -66,11 +77,13 @@ public class SimpleIRCBridge {
 
 	@SubscribeEvent
 	public void serverStopping(FMLServerStoppingEvent event) {
+		logger.info("SIB received server stopping event");
 		this.bot.disconnect();
 	}
 
 	@SubscribeEvent
 	public void serverStopped(FMLServerStoppedEvent event) {
+		logger.info("SIB received server stopped event");
 		this.bot.kill();
 		this.bot = null;
 		this.mcServer = null;
@@ -88,7 +101,7 @@ public class SimpleIRCBridge {
 
 	/* package-private */ void sendToMinecraft(String line) {
 		if (this.mcServer != null) {
-			this.mcServer.getPlayerList().sendMessage(new StringTextComponent(line));
+			this.mcServer.getPlayerList().func_232641_a_(new StringTextComponent(line), ChatType.CHAT, IRC_UUID);
 		}
 	}
 

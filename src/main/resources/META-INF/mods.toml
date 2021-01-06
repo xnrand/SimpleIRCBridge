@@ -1,7 +1,12 @@
 modLoader="javafml"
-loaderVersion="[25,)"
+loaderVersion="[35,)"
+license="See file SOFTWARE-COPYRIGHT-INFORMATION.txt included in jar."
 [[mods]]
 modId="simpleircbridge"
 version="${version}"
 displayName="SimpleIRCBridge"
-description="A Server IRC bridge mod that is extremely simple."
+description='''
+A Server IRC bridge mod that is extremely simple.
+
+This server-side mod allows you to relay all chat on the server to and from an IRC channel. Its configuration is kept very simple and its functionality is basic.
+'''
